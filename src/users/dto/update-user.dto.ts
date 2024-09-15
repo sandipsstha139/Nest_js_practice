@@ -22,3 +22,12 @@ export class UpdateAvatarDto {
   @IsOptional()
   avatar: string;
 }
+
+export class TestDto {
+  @ApiProperty({
+    description: 'The email of a user',
+    example: 'sandipstha139@gmail.com',
+  })
+  @IsString()
+  email: string;
+}

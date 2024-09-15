@@ -1,16 +1,16 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcryptjs';
+import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { NodemailerService } from 'src/nodemailer/nodemailer.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { TestDto, UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly nodemailerService: NodemailerService,
   ) {}
 
   async findAll(): Promise<Partial<User>[]> {
@@ -59,11 +59,17 @@ export class UsersService {
     file: Express.Multer.File,
     user: User,
   ): Promise<Partial<User>> {
-    console.log('hi');
-    console.log(file);
-    console.log(user);
+    if (user.avatar.length > 0) {
+      const avatarPublicId = user.avatar
+        .split('/')
+        .slice(-2)
+        .join('/')
+        .split('.')[0];
+      await this.cloudinaryService.DeleteFile(avatarPublicId);
+    }
+
     const cloudinaryResponse = await this.cloudinaryService.uploadFile(file);
-    console.log(cloudinaryResponse);
+
     const updatedUser = await this.prismaService.user.update({
       where: { id: user.id },
       data: { avatar: cloudinaryResponse.secure_url },
@@ -73,5 +79,15 @@ export class UsersService {
     });
 
     return updatedUser;
+  }
+
+  async testNodemailer(testDto: TestDto): Promise<{ message: string }> {
+    const mailResponse = await this.nodemailerService.sendMail({
+      email: testDto.email,
+      subject: 'Test Email',
+      message: 'This is a test email from NestJS',
+    });
+
+    return { message: 'Email sent successfully!' };
   }
 }

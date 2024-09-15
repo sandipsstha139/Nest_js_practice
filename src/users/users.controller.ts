@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
+import { TestDto, UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBearerAuth,
   ApiConsumes,
@@ -70,5 +70,11 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
+  }
+
+  @ApiOperation({ summary: 'Test Nodemailer controller' })
+  @Post('test/nodemailer')
+  async testNodemailer(@Body() testDto: TestDto) {
+    return await this.usersService.testNodemailer(testDto);
   }
 }

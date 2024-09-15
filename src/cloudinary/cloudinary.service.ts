@@ -23,10 +23,13 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader
-        .upload_stream({ resource_type: 'image' }, (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        })
+        .upload_stream(
+          { resource_type: 'image', folder: 'nest-js' },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          },
+        )
         .end(file.buffer);
     });
   }
