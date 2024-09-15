@@ -12,3 +12,13 @@ export class UpdateUserDto {
   @IsOptional()
   name: string;
 }
+
+export class UpdateAvatarDto {
+  @ApiProperty({
+    description: 'The avatar of a user',
+    required: false,
+    format: 'binary',
+  })
+  @IsOptional()
+  avatar: string;
+}

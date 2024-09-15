@@ -8,12 +8,22 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from 'src/common/decorators/user.decorator';
+import { User as UserEntity } from '@prisma/client';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -41,6 +51,19 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @ApiOperation({ summary: 'Update profile Image' })
+  @UseGuards(JwtAuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('avatar'))
+  @Post('profile-image')
+  updateProfileImage(
+    @Body() updateAvatarDto: UpdateAvatarDto,
+    @UploadedFile() file: Express.Multer.File,
+    @User() user: UserEntity,
+  ) {
+    return this.usersService.updateProfileImage(updateAvatarDto, file, user);
   }
 
   @ApiOperation({ summary: 'Delete User' })

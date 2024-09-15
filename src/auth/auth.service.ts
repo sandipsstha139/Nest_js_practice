@@ -77,17 +77,18 @@ export class AuthService {
   }
 
   async validateUser(profile: any): Promise<any> {
-    const name = profile.displayName;
-    const email = profile.emails[0].value;
-    const user = await this.prismaService.user.findUnique({
-      where: { email },
+    let user = await this.prismaService.user.findFirst({
+      where: {
+        googleId: profile.id,
+      },
     });
 
     if (!user) {
       const newUser = await this.prismaService.user.create({
         data: {
-          name,
-          email,
+          googleId: profile.id,
+          name: profile.displayName,
+          email: profile.emails[0].value,
         },
         omit: {
           password: true,

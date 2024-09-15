@@ -19,6 +19,8 @@ model User {
   name                String
   email               String    @unique
   password            String?
+  avatar              String?
+  googleId            String?
   resetPasswordToken  String?
   resetPasswordExpiry DateTime?
   isOtpVerified       Boolean   @default(false)

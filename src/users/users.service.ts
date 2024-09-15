@@ -1,13 +1,17 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateAvatarDto, UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async findAll(): Promise<Partial<User>[]> {
     const users = await this.prismaService.user.findMany({
@@ -48,5 +52,26 @@ export class UsersService {
     });
 
     return { message: 'User Deleted Successfully!' };
+  }
+
+  async updateProfileImage(
+    updateAvatarDto: UpdateAvatarDto,
+    file: Express.Multer.File,
+    user: User,
+  ): Promise<Partial<User>> {
+    console.log('hi');
+    console.log(file);
+    console.log(user);
+    const cloudinaryResponse = await this.cloudinaryService.uploadFile(file);
+    console.log(cloudinaryResponse);
+    const updatedUser = await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { avatar: cloudinaryResponse.secure_url },
+      omit: {
+        password: true,
+      },
+    });
+
+    return updatedUser;
   }
 }
