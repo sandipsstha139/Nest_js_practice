@@ -31,8 +31,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
     return {
-      message: 'User information from Google',
-      user: req.user,
+      ...req.user,
     };
   }
 }
