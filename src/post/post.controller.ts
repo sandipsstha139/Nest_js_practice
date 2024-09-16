@@ -2,8 +2,13 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpStatus,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   UploadedFile,
@@ -32,7 +37,20 @@ export class PostController {
   create(
     @Body() createPostDto: CreatePostDto,
     @User() user: UserEntity,
-    @UploadedFile() coverImage: Express.Multer.File,
+
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'jpeg',
+        })
+        .addMaxSizeValidator({
+          maxSize: 1000,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    coverImage: Express.Multer.File,
   ) {
     console.log(createPostDto);
     return this.postService.create(createPostDto, user, coverImage);

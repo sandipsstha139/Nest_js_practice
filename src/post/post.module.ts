@@ -10,10 +10,10 @@ import { HttpExceptionFilter } from 'src/http-exception.filter';
   imports: [PrismaModule, CloudinaryModule],
   controllers: [PostController],
   providers: [
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
     PostService,
   ],
 })
